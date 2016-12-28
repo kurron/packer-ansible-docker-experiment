@@ -1,0 +1,38 @@
+---
+- hosts: default
+  vars:
+      jdk_destination: /tmp
+      jdk_azul_jdk_install: true
+      jdk_azul_jdk_build: 8.19.0.1
+      jdk_azul_jdk_version: 8.0.112
+      jdk_azul_jdk_link_destination: azul-jdk-8
+
+  tasks:
+      - name: Debug
+        debug:
+            msg: "System {{ inventory_hostname }} has uuid {{ ansible_product_uuid }}"
+ 
+      - name: Copy
+        copy:
+            src: "LICENSE"
+            dest: "/tmp/LICENSE"
+ 
+      - name: Download Azul JDK Tarball
+        get_url:
+            url: "http://cdn.azul.com/zulu/bin/zulu{{jdk_azul_jdk_build}}-jdk{{jdk_azul_jdk_version}}-linux_x64.tar.gz"
+            dest: "/tmp/azul-jdk-{{jdk_azul_jdk_version}}.tar.gz"
+            mode: 0444
+
+      - name: Uncompress Azul JDK Tarball
+        unarchive:
+            src: "/tmp/azul-jdk-{{jdk_azul_jdk_version}}.tar.gz"
+            dest: "{{jdk_destination}}"
+            copy: no
+            owner: "{{ansible_user_uid}}"
+            group: "{{ansible_user_gid}}"
+            mode: 0555
+            creates: "{{jdk_destination}}//zulu{{jdk_azul_jdk_build}}-jdk{{jdk_azul_jdk_version}}-linux_x64/LICENSE"
+
+      - name: Test Azul JDK
+        command: "{{jdk_destination}}//zulu{{jdk_azul_jdk_build}}-jdk{{jdk_azul_jdk_version}}-linux_x64/bin/java -version"
+

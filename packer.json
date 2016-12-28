@@ -1,0 +1,38 @@
+{
+    "description": "Builds a bare bones, Ubuntu 16.04 Server x64 box",
+    "min_packer_version": "0.12.1",
+
+    "variables": {
+        "ssh_name": "vagrant",
+        "ssh_pass": "vagrant",
+        "hostname": "xenial-server-bare",
+        "version": "5.1.12",
+        "comment": "Upgrade to VirtualBox 5.1.12",
+        "ovf": "Xenial-x64-Server.ova"
+    },
+
+    "builders": [
+        { 
+            "type": "docker",
+            "image": "ubuntu",
+            "export_path": "image.tar"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": ["apt-get update && apt-get install --yes python"]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "playbook.yml",
+            "command": "ansible-playbook",
+            "host_alias": "default",
+            "extra_arguments": ["--verbose"],
+            "ansible_env_vars": ["FOO=bar"]
+        }
+    ],
+    "post-processors": [
+        []
+    ]
+}
